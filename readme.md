@@ -35,7 +35,7 @@ RUN TOOLS
 Option A: CommandLine
 
 ```python
-python imgprocessor 'nasa.jpeg' 720 2g
+python imgprocessor 'nasa.jpeg' 720 '2g'
 ```
 Option B: Import
 
