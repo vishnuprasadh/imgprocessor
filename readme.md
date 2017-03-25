@@ -1,5 +1,7 @@
 ######################################################
+
 DYNAMIC IMAGE CONVERTOR
+
 ######################################################
 PURPOSE
 Given a Image filename with screensize, bandwidth the program generates the image file and provides the output of the filepath with name.
