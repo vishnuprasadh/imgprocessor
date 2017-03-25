@@ -8,3 +8,5 @@ imghandler.log
 *.xml
 
 .idea/ImageGenerator.iml
+
+*.egg
