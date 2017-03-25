@@ -1,0 +1,7 @@
+imgprocessor.py
+setup.py
+imgprocessor.egg-info/PKG-INFO
+imgprocessor.egg-info/SOURCES.txt
+imgprocessor.egg-info/dependency_links.txt
+imgprocessor.egg-info/requires.txt
+imgprocessor.egg-info/top_level.txt

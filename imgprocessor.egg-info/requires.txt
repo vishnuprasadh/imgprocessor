@@ -1,0 +1,4 @@
+Pillow-SIMD
+numpy
+configparser
+setuptools

@@ -1,0 +1,12 @@
+Metadata-Version: 1.1
+Name: imgprocessor
+Version: 0.1
+Summary: Dynamically generates runtime image file resized based on bandwidth, screensize
+Home-page: https://github.com/vishnuprasadh/imgprocessor
+Author: vishnu prasad hari
+Author-email: vishnuprasadh@gmail.com
+License: MIT
+Download-URL: https://github.com/vishnuprasadh/imgprocessor.git
+Description: UNKNOWN
+Keywords: Pillow-SIMD,PIP,Dynamic image rendering,dynamicimage,Image rendering
+Platform: UNKNOWN
