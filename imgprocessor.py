@@ -45,8 +45,9 @@ class imgprocessor(object):
         self.mylogger.info('starttime is {}'.format(time.time()))
         config = ConfigParser()
 
-        '''get realpath'''
-        config.read(os.path.realpath("config.ini"))
+        '''get executionpath'''
+        dirname = os.path.dirname(__file__)
+        config.read(os.path.join (dirname ,"config.cfg"))
 
         '''Initialize all the configurations like screensizes, bandconfig etc'''
         screenconfig = config.get(section="config",option="screensize")
