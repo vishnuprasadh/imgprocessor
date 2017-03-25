@@ -1,7 +1,6 @@
 from setuptools import setup
 
-setup(name="DIG",
-      description='Dynamically generates runtime image file resized based on bandwidth, screensize',
+setup(name="DIG", description='Dynamically generates runtime image file resized based on bandwidth, screensize',
       author='vishnu prasad hari',
       author_email='vishnuprasadh@gmail.com',
       keywords='Pillow-SIMD,PIP,Dynamic image rendering,dynamicimage,Image rendering',

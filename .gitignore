@@ -1,0 +1,10 @@
+
+imghandler.log
+
+.eggs/README.txt
+
+.idea/modules.xml
+
+*.xml
+
+.idea/ImageGenerator.iml
