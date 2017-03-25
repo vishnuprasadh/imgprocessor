@@ -10,3 +10,9 @@ imghandler.log
 .idea/ImageGenerator.iml
 
 *.egg
+
+*.txt
+
+imgprocessor.egg-info/PKG-INFO
+
+build/lib/imgprocessor.py
