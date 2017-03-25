@@ -8,7 +8,6 @@ import argparse
 from PIL import Image, ImageEnhance
 from configparser import ConfigParser
 
-
 args = argparse.ArgumentParser(prog='python -m imgprocessor',
                                description='Given a filename with screensize, bandwidth the program generates the file and provides the output of the filepath with name',
                                add_help='provide filename as firstparameter, screen w=width e.g. 720 or 1024 etc, bandwidth as third parameter i.e. 2g,3g,4g or * in case of default'
@@ -45,7 +44,7 @@ class imgprocessor(object):
     def __init__(self):
         self.mylogger.info('starttime is {}'.format(time.time()))
         config = ConfigParser()
-        config.read("config.ini")
+        config.read(os.path.join(os.getcwd(), "config.ini"))
         '''Initialize all the configurations like screensizes, bandconfig etc'''
         screenconfig = config.get(section="config",option="screensize")
         bandconfig = config.get(section="config",option="band")
@@ -119,7 +118,7 @@ class imgprocessor(object):
         if self.sumup >= 4:
             '''I am sure if the value is > 4, its either 3g, 4g etc with higher screensize'''
             self.sumup = 3
-            return 1
+            return 0.75
         elif self.sumup <= 2:
             '''I am sure if the value is < 2, it is lower res with low bandwidth'''
             self.sumup = 2
