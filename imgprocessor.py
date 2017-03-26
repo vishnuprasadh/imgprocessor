@@ -7,6 +7,8 @@ import logging
 import argparse
 from PIL import Image, ImageEnhance
 from configparser import ConfigParser
+from configparser import ExtendedInterpolation
+import importlib
 
 args = argparse.ArgumentParser(prog='python -m imgprocessor',
                                description='Given a filename with screensize, bandwidth the program generates the file and provides the output of the filepath with name',
@@ -44,12 +46,14 @@ class imgprocessor(object):
     def __init__(self):
         self.mylogger.info('starttime is {}'.format(time.time()))
         config = ConfigParser()
+        config._interpolation = ExtendedInterpolation()
 
         '''get executionpath'''
         dirname = os.path.dirname(os.path.realpath(__file__))
         config.read(os.path.join (dirname ,"config.cfg"))
         print(os.path.join (dirname ,"config.cfg"))
         print(config.keys())
+        print(config.sections())
 
 
         #self.mylogger.info('Dirname is in {}'.format(os.path.join (dirname ,"config.cfg")))
