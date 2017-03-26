@@ -8,8 +8,8 @@ import argparse
 from PIL import Image, ImageEnhance
 from configparser import ConfigParser
 from configparser import ExtendedInterpolation
-import importlib
-
+from pkg_resources import resource_stream, Requirement
+import pkg_resources
 args = argparse.ArgumentParser(prog='python -m imgprocessor',
                                description='Given a filename with screensize, bandwidth the program generates the file and provides the output of the filepath with name',
                                add_help='provide filename as firstparameter, screen w=width e.g. 720 or 1024 etc, bandwidth as third parameter i.e. 2g,3g,4g or * in case of default'
@@ -48,10 +48,15 @@ class imgprocessor(object):
         config = ConfigParser()
         config._interpolation = ExtendedInterpolation()
 
+        '''Resource based loading option.'''
+        #resource = resource_stream(Requirement.parse('imgprocessor==0.01'),'config.cfg').read()
+        #resource = resource.decode('UTF-8','replace')
+        #print(resource)
+        #config.read_string(resource)
+
         '''get executionpath'''
         dirname = os.path.dirname(os.path.realpath(__file__))
         config.read(os.path.join (dirname ,"config.cfg"))
-        print(os.path.join (dirname ,"config.cfg"))
         print(config.keys())
         print(config.sections())
 
