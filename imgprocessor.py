@@ -47,7 +47,11 @@ class imgprocessor(object):
 
         '''get executionpath'''
         dirname = os.path.dirname(__file__)
-        config.read(os.path.join (dirname ,"config.cfg"))
+        config.read(os.path.join (dirname ,"config/config.cfg"))
+        print(config.keys())
+
+
+        #self.mylogger.info('Dirname is in {}'.format(os.path.join (dirname ,"config.cfg")))
 
         '''Initialize all the configurations like screensizes, bandconfig etc'''
         screenconfig = config.get(section="config",option="screensize")
