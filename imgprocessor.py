@@ -58,8 +58,9 @@ class imgprocessor(object):
         '''get executionpath'''
         dirname = os.path.dirname(os.path.realpath(__file__))
         config.read(os.path.join (dirname ,"config.cfg"))
-        print(config.keys())
-        print(config.sections())
+
+        #print(config.keys())
+        #print(config.sections())
 
 
         #self.mylogger.info('Dirname is in {}'.format(os.path.join (dirname ,"config.cfg")))
