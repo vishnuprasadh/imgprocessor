@@ -9,7 +9,8 @@ from PIL import Image, ImageEnhance
 from configparser import ConfigParser
 from configparser import ExtendedInterpolation
 from pkg_resources import resource_stream, Requirement
-import pkg_resources
+
+
 args = argparse.ArgumentParser(prog='python -m imgprocessor',
                                description='Given a filename with screensize, bandwidth the program generates the file and provides the output of the filepath with name',
                                add_help='provide filename as firstparameter, screen w=width e.g. 720 or 1024 etc, bandwidth as third parameter i.e. 2g,3g,4g or * in case of default'
@@ -149,8 +150,10 @@ class imgprocessor(object):
 
 '''We need this to enable commandline capabilities'''
 if __name__ == '__main__':
+    pargs = argparse.Namespace()
     pargs = args.parse_args()
-    img = imgprocessor()
-    img.generate(pargs.file, pargs.size, pargs.bandwidth, pargs.returnpath)
+    if not pargs == None:
+        img = imgprocessor()
+        img.generate(pargs.file, pargs.size, pargs.bandwidth, pargs.returnpath)
 
 
