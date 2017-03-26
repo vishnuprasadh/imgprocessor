@@ -46,8 +46,9 @@ class imgprocessor(object):
         config = ConfigParser()
 
         '''get executionpath'''
-        dirname = os.path.dirname(__file__)
-        config.read(os.path.join (dirname ,"config/config.cfg"))
+        dirname = os.path.dirname(os.path.realpath(__file__))
+        config.read(os.path.join (dirname ,"config.cfg"))
+        print(os.path.join (dirname ,"config.cfg"))
         print(config.keys())
 
 
