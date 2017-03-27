@@ -1,4 +1,4 @@
-#! /usr/bin/python env
+#! /usr/bin/env python
 import time
 import json
 import logging.handlers

@@ -3,7 +3,7 @@ import time
 import sys
 import logging.handlers
 import logging
-from PIL import Image, ImageEnhance
+from PIL import Image
 from configparser import ConfigParser
 from configparser import ExtendedInterpolation
 from pkg_resources import resource_stream, Requirement
