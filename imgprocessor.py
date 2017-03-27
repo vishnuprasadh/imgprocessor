@@ -10,7 +10,6 @@ from configparser import ConfigParser
 from configparser import ExtendedInterpolation
 from pkg_resources import resource_stream, Requirement
 
-
 args = argparse.ArgumentParser(prog='python -m imgprocessor',
                                description='Given a filename with screensize, bandwidth the program generates the file and provides the output of the filepath with name',
                                add_help='provide filename as firstparameter, screen w=width e.g. 720 or 1024 etc, bandwidth as third parameter i.e. 2g,3g,4g or * in case of default'
@@ -45,7 +44,7 @@ class imgprocessor(object):
     mylogger.addHandler(handler)
 
     def __init__(self):
-        self.mylogger.info('starttime is {}'.format(time.time()))
+        self.mylogger.info('starttime is {}'.format(str(time.time())))
         config = ConfigParser()
         config._interpolation = ExtendedInterpolation()
 
@@ -55,9 +54,11 @@ class imgprocessor(object):
         #print(resource)
         #config.read_string(resource)
 
+
         '''get executionpath'''
         dirname = os.path.dirname(os.path.realpath(__file__))
         config.read(os.path.join (dirname ,"config.cfg"))
+        self.mylogger.info( "dirname is {}".format(dirname))
 
         #print(config.keys())
         #print(config.sections())
@@ -79,7 +80,7 @@ class imgprocessor(object):
     def generate(self,filename,size="320",bandwidth="*",returnFullpath=False):
         try:
 
-            self.mylogger.info('Generating file {} at {}'.format(filename,time.time()))
+            self.mylogger.info('Generating file {}'.format(filename))
             '''Expected name of the file to be generated'''
             scale = self._getoptimizesizebasedonsizebandwidth(size, bandwidth)
             savefilename = filename.split(".")[0] + "_" + str(self.sumup) + "." + filename.split(".")[1]

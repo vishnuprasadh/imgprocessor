@@ -18,3 +18,7 @@ build/lib/imgprocessor.py
 imgprocessor.egg-info/PKG-INFO
 
 imgprocessor.pyc
+
+__pycache__/imgprocessor.cpython-36.pyc
+
+*.log
