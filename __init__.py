@@ -1,4 +1,4 @@
-__all__=['imgprocessor']
+__all__=['imgprocessor','imgjsonhandler','cmdimgprocessor']
 
 
 

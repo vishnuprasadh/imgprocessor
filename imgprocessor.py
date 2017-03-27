@@ -1,24 +1,12 @@
 import os
 import time
 import sys
-import numpy as np
 import logging.handlers
 import logging
-import argparse
 from PIL import Image, ImageEnhance
 from configparser import ConfigParser
 from configparser import ExtendedInterpolation
 from pkg_resources import resource_stream, Requirement
-
-args = argparse.ArgumentParser(prog='python -m imgprocessor',
-                               description='Given a filename with screensize, bandwidth the program generates the file and provides the output of the filepath with name',
-                               add_help='provide filename as firstparameter, screen w=width e.g. 720 or 1024 etc, bandwidth as third parameter i.e. 2g,3g,4g or * in case of default'
-                               )
-args.add_argument('-f', '--file', required=True, help='The name of image file to generate')
-args.add_argument('-s', '--size' ,required=False, default=740 ,help='The size of client device, defaults to 740')
-args.add_argument('-b', '--bandwidth',required=False, default='*' ,help='The bandwidth of device, defaults to high bandwidth.You can give 2g,3g,4g or *')
-args.add_argument('-r', '--returnpath',required=False, default=False, help='If you need full returnpath provide true here' )
-
 
 class imgprocessor(object):
     '''the class is used for processing of the image dynamically and accepts the name of the original image
@@ -44,7 +32,7 @@ class imgprocessor(object):
     mylogger.addHandler(handler)
 
     def __init__(self):
-        self.mylogger.info('starttime is {}'.format(str(time.time())))
+        #self.mylogger.info(msg='starttime is {}'.format(time.time()))
         config = ConfigParser()
         config._interpolation = ExtendedInterpolation()
 
@@ -58,7 +46,7 @@ class imgprocessor(object):
         '''get executionpath'''
         dirname = os.path.dirname(os.path.realpath(__file__))
         config.read(os.path.join (dirname ,"config.cfg"))
-        self.mylogger.info( "dirname is {}".format(dirname))
+        self.mylogger.info(msg="Dirname is {}".format(dirname))
 
         #print(config.keys())
         #print(config.sections())
@@ -72,7 +60,7 @@ class imgprocessor(object):
         self.defaultscreen = config.get(section="config",option="defaultscreen")
         self.defaultband = config.get(section="config",option="defaultbandwidth")
         self.imagepath = config.get(section="config",option="path")
-        self.mylogger.setLevel(config.get(section="config",option="loglevel"))
+        #self.mylogger.setLevel(config.get(section="config",option="loglevel"))
         self.screens = dict(screenmix.split(",")  for screenmix in screenconfig.split(";"))
         self.bandwidth = dict(band.split(",") for band in bandconfig.split(";"))
         self.mylogger.info("Done initialization")
@@ -140,7 +128,7 @@ class imgprocessor(object):
             '''I am sure if the value is > 4, its either 3g, 4g etc with higher screensize'''
             self.sumup = 3
             return 0.75
-        elif self.sumup <= 2:
+        elif self.sumup <= 3:
             '''I am sure if the value is < 2, it is lower res with low bandwidth'''
             self.sumup = 2
             return 0.3
@@ -148,14 +136,4 @@ class imgprocessor(object):
             '''Else it is 2'''
             self.sumup=1
             return 0.5
-
-
-'''We need this to enable commandline capabilities'''
-if __name__ == '__main__':
-    pargs = argparse.Namespace()
-    pargs = args.parse_args()
-    if not pargs == None:
-        img = imgprocessor()
-        img.generate(pargs.file, pargs.size, pargs.bandwidth, pargs.returnpath)
-
 
