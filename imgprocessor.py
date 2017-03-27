@@ -8,7 +8,9 @@ from configparser import ConfigParser
 from configparser import ExtendedInterpolation
 from pkg_resources import resource_stream, Requirement
 
+
 class imgprocessor(object):
+
     '''the class is used for processing of the image dynamically and accepts the name of the original image
     the screensize and the bandwidth.
     Based on these values, the program will do simple logic of sending the most optimal size image and uses
@@ -18,6 +20,7 @@ class imgprocessor(object):
     '''All configured bandwidth, screens will be initialized with a weightage'''
     bandwidth = dict()
     screens = dict()
+
     '''Default screensize, band will be set once initialized'''
     defaultscreen = {}
     defaultband = {}
@@ -32,7 +35,7 @@ class imgprocessor(object):
     mylogger.addHandler(handler)
 
     def __init__(self):
-        #self.mylogger.info(msg='starttime is {}'.format(time.time()))
+        self.mylogger.info(msg="Starttime is {}".format(time.time()))
         config = ConfigParser()
         config._interpolation = ExtendedInterpolation()
 
@@ -52,7 +55,7 @@ class imgprocessor(object):
         #print(config.sections())
 
 
-        #self.mylogger.info('Dirname is in {}'.format(os.path.join (dirname ,"config.cfg")))
+        self.mylogger.info(msg="Dirname is in {}".format(os.path.join (dirname ,"config.cfg")))
 
         '''Initialize all the configurations like screensizes, bandconfig etc'''
         screenconfig = config.get(section="config",option="screensize")
@@ -63,7 +66,7 @@ class imgprocessor(object):
         #self.mylogger.setLevel(config.get(section="config",option="loglevel"))
         self.screens = dict(screenmix.split(",")  for screenmix in screenconfig.split(";"))
         self.bandwidth = dict(band.split(",") for band in bandconfig.split(";"))
-        self.mylogger.info("Done initialization")
+        self.mylogger.info(msg="Done initialization")
 
     def generate(self,filename,size="320",bandwidth="*",returnFullpath=False):
         try:
@@ -88,7 +91,6 @@ class imgprocessor(object):
             img = Image.open(fullpath, 'r')
             self.mylogger.info("Size of image is {}".format(img.size))
             img.thumbnail((int(img.size[0]*scale) , int(img.size[0]*scale)),Image.LANCZOS)
-            #img = img.resize((int(img.size[0]*scale) , int(img.size[0]*scale)),Image.LANCZOS)
             img.save(savefilename)
             self.mylogger.info("Saved file {} for {}".format(filename,savefilename))
 
@@ -96,44 +98,44 @@ class imgprocessor(object):
                 return fullpath
             else:
                 return os.path.join(self.imagepath,savefilename)
-                self.mylogger.info("returned for file {}".format(filename))
+                self.mylogger.info(msg="returned for file {}".format(filename))
         except NameError as filenotfound:
-            raise NameError('File {} doesnt exist'.format(fullpath))
-            self.mylogger.exception(msg='Exception occurred in image generation for {}'.format(filename),exc_info=filenotfound)
+            raise NameError('File {} doesnt exist'.format(filename))
+            self.mylogger.exception("Exception occurred in image generation for {}".format(filename))
         except Exception as genEx:
-            '''logging exception'''
-            self.mylogger.exception(msg='Exception occurred in image generation for {}'.format(filename),exc_info=genEx)
+            self.mylogger.exception("Exception occurred in image generation for {}".format(filename))
         finally:
-            '''we will use it if required'''
-
+            self.mylogger.info("Completed")
 
     '''We will set the optimized value for image generation based on size & bandwidth'''
     def _getoptimizesizebasedonsizebandwidth(self,size,bandwidth):
         '''If the sizeinfo is not configured, send the highest sizeinfo available'''
-        self.mylogger.info('Size & bandwidth is {} & {}'.format(size,bandwidth))
+        self.mylogger.info(msg='Size & bandwidth is {} & {}'.format(size,bandwidth))
         try:
-            sizeinfo = self.screens[str(size)]
+            size = self.screens[str(size)]
         except Exception:
-            sizeinfo = max({val:key for key, val in self.screens.items()})
-            self.mylogger.info('Size was not found and defaulting to size {}'.format(sizeinfo))
+            size = max({val:key for key, val in self.screens.items()})
+            #self.mylogger.info('Size was not found and defaulting to size {}'.format(size))
         '''if input value isnt configured, send the highest bandwidth configured'''
         try:
-            bandinfo = self.bandwidth[bandwidth.lower()]
+            bandwidth = self.bandwidth[bandwidth.lower()]
         except Exception:
-            bandinfo =  max({val:key for key, val in self.bandwidth.items()})
-            self.mylogger.info('Bandwidth was not found and defaulting to size {}'.format(bandinfo))
-        self.sumup = int(sizeinfo) + int(bandinfo)
+            bandwidth =  max({val:key for key, val in self.bandwidth.items()})
+            #self.mylogger.info('Bandwidth was not found and defaulting to size {}'.format(bandwidth))
+        self.sumup = int(size) + int(bandwidth)
         self.mylogger.info('Sumup value is {}'.format(self.sumup))
-        if self.sumup >= 4:
-            '''I am sure if the value is > 4, its either 3g, 4g etc with higher screensize'''
-            self.sumup = 3
-            return 0.75
-        elif self.sumup <= 3:
-            '''I am sure if the value is < 2, it is lower res with low bandwidth'''
-            self.sumup = 2
-            return 0.3
+        if self.sumup <= 4:
+            self.sumup = 4
+            return 0.22
+        elif self.sumup <= 7:
+            '''I am sure screen is of medium size and bandwidth is around 2g'''
+            self.sumup = 7
+            return 0.33
+        elif self.sumup <=10:
+            '''I know this is of medium resolution and high bandwidth or high res with low bandwidth'''
+            self.sumup = 10
+            return 0.44
         else:
-            '''Else it is 2'''
-            self.sumup=1
+            '''I am sure if the value is > 4, its either 3g, 4g etc with higher screensize'''
+            self.sumup = 11
             return 0.5
-

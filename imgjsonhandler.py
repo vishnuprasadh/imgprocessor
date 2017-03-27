@@ -4,39 +4,46 @@ import logging.handlers
 import logging
 from imgprocessor import imgprocessor
 
-class imgjsonhandler(object):
-    '''This can be used in Django or CGI gateway for making calls and getting JSON while generating the image locally'''
 
+class imgjsonhandler(object):
+
+
+    '''This can be used in Django or CGI gateway for making calls and getting JSON while generating the image locally'''
     '''Initialize the logger to log information'''
-    mylogger = logging.getLogger('JsonImageHandler')
-    handler = logging.handlers.RotatingFileHandler('jsonimage.log', 'a', maxBytes=10000000, backupCount=5)
+    mylogger = logging.getLogger('jsonimagehandler')
+    handler = logging.handlers.RotatingFileHandler('jsonimagehandler.log', 'a', maxBytes=10000000, backupCount=5)
     mylogger.addHandler(handler)
 
     def outputjson(self,filename,size,bandwidth,returnfullpath):
+
         try:
+            imgprocess = imgprocessor()
             jsondata = json.dumps({})
-            print('processing for {}, {}, {}'.format(filename,size,bandwidth))
-            imgname = imgprocessor.generate(filename,size,bandwidth,returnfullpath)
-            print('processed')
+            self.mylogger.info('processing for {}, {}, {}'.format(filename,size,bandwidth))
+            imgname = imgprocess.generate(filename=filename,size=size,bandwidth=bandwidth,returnFullpath=returnfullpath)
+            self.mylogger.info('processed')
             data = {"path": imgname, "key": "{}_{}_{}".format(filename,size,bandwidth)}
-            self.mylogger.log(data)
             jsondata = json.dumps(data)
         except Exception as ex:
-            print(ex)
-            self.mylogger.exception(msg='Exception occurred in image generation for {}'.format(filename), exc_info=ex)
+            self.mylogger.exception(ex)
         finally:
-            self.mylogger.info(msg="Processing for {} completed, check log for any errors.".format(filename))
             return jsondata
 
 
 if __name__ == '__main__':
     imgjson = imgjsonhandler()
+
     '''Handle or get the values here from the request handler and set the same'''
-    values = ['pi333ctuwzf.jpg', '320', '2g', False]
+    '''Replace this with input from handler'''
+    filename = "pi333ctuwzf.jpg"
+    size= 720
+    band='2g'
+    returnfullpath = False
 
     '''the output automatically will be of json with content type and values set
     the output would have 2 keys.
-    path = imagename & key = unique key for the image & screen, size combination to handle in edge servers like varnish
+    path is imagename & key is unique key for the image & screen, size combination to handle in edge servers like varnish
     '''
     print('content-type:application/json')
-    print(imgjson.outputjson(values[0],values[1],values[2],values[3]))
+    output = imgjson.outputjson(filename,size=size,bandwidth=band, returnfullpath=returnfullpath)
+    print(output)
