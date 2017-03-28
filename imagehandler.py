@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 import os
 import time
 import sys
@@ -84,7 +84,8 @@ def generate(filename,ssize="320",band="*"):
         if os.path.isfile(savefilename):
             img = Image.open(savefilename)
             img.save(imgfile,format="JPEG")
-            return base64.b64encode(imgfile.getvalue())
+            return imgfile.getvalue()
+            #return base64.b64encode(imgfile.getvalue())
         '''Open the file if it isnt there and resize, send back the path'''
 
         '''Check if input fullpath leads to file, if not throw exception'''
@@ -101,7 +102,8 @@ def generate(filename,ssize="320",band="*"):
 
         '''load from bytes too'''
         img.save(imgfile)
-        return base64.b64encode(imgfile.getvalue())
+        return imgfile.getvalue()
+        #return base64.b64encode(imgfile.getvalue())
 
         mylogger.info("Saved file {} for {}".format(filename,savefilename))
     except NameError as filenotfound:
