@@ -8,7 +8,7 @@ from configparser import ConfigParser
 from configparser import ExtendedInterpolation
 from pkg_resources import resource_stream, Requirement
 from io import BytesIO
-
+import base64
 
 '''the class is used for processing of the image dynamically and accepts the name of the original image
 the screensize and the bandwidth.
@@ -82,8 +82,8 @@ def generate(filename,ssize="320",band="*"):
         '''if filealready exist return file name'''
         if os.path.isfile(savefilename):
             img = Image.open(savefilename)
-            img.save(imgfile,'jpg')
-            return imgfile
+            img.save(imgfile,format="JPEG")
+            return base64.b64encode(imgfile.getvalue())
         '''Open the file if it isnt there and resize, send back the path'''
 
         '''Check if input fullpath leads to file, if not throw exception'''
@@ -96,10 +96,11 @@ def generate(filename,ssize="320",band="*"):
         mylogger.info("Size of image is {}".format(img.size))
         img.thumbnail((int(img.size[0]*scale) , int(img.size[0]*scale)),Image.LANCZOS)
         '''saved locally'''
-        img.save(savefilename)
+        img.save(savefilename,format="JPEG")
+
         '''load from bytes too'''
-        img.save(imgfile,"jpg")
-        return imgfile
+        img.save(imgfile)
+        return base64.b64encode(imgfile.getvalue())
 
         mylogger.info("Saved file {} for {}".format(filename,savefilename))
     except NameError as filenotfound:
@@ -111,8 +112,6 @@ def generate(filename,ssize="320",band="*"):
 
 '''We will set the optimized value for image generation based on size & bandwidth'''
 def _getoptimizesizebasedonsizebandwidth(size,band,screens,bandwidth):
-    print(screens)
-    print(bandwidth)
     '''If the sizeinfo is not configured, send the highest sizeinfo available'''
     mylogger.info(msg='Size & bandwidth is {} & {}'.format(size,band))
     try:
@@ -157,5 +156,6 @@ if __name__ == '__main__':
     the output would have 2 keys.
     path is imagename & key is unique key for the image & screen, size combination to handle in edge servers like varnish
     '''
-    print('content-type:application/json')
-    generate(filename,size,band)
+    print('content-type:image/jpg')
+    i = generate(filename,size,band)
+    print(i)
