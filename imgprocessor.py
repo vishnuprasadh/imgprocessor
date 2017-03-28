@@ -108,30 +108,33 @@ class imgprocessor(object):
             self.mylogger.info("Completed")
 
     '''We will set the optimized value for image generation based on size & bandwidth'''
-    def _getoptimizesizebasedonsizebandwidth(self,size,bandwidth):
+    def _getoptimizesizebasedonsizebandwidth(self,size,band):
         '''If the sizeinfo is not configured, send the highest sizeinfo available'''
-        self.mylogger.info(msg='Size & bandwidth is {} & {}'.format(size,bandwidth))
+        self.mylogger.info(msg='Size & bandwidth is {} & {}'.format(size,band))
         try:
             size = self.screens[str(size)]
+            print(size)
         except Exception:
             size = max({val:key for key, val in self.screens.items()})
             #self.mylogger.info('Size was not found and defaulting to size {}'.format(size))
         '''if input value isnt configured, send the highest bandwidth configured'''
         try:
-            bandwidth = self.bandwidth[bandwidth.lower()]
+            band = self.bandwidth[band.lower()]
+            print(band)
         except Exception:
-            bandwidth =  max({val:key for key, val in self.bandwidth.items()})
+            band =  max({val:key for key, val in self.bandwidth.items()})
             #self.mylogger.info('Bandwidth was not found and defaulting to size {}'.format(bandwidth))
-        self.sumup = int(size) + int(bandwidth)
+        self.sumup = float(size) + float(band)
         self.mylogger.info('Sumup value is {}'.format(self.sumup))
-        if self.sumup <= 4:
+        print(self.sumup)
+        if float(self.sumup) <= 4:
             self.sumup = 4
             return 0.22
-        elif self.sumup <= 7:
+        elif float(self.sumup) <= 7:
             '''I am sure screen is of medium size and bandwidth is around 2g'''
             self.sumup = 7
             return 0.33
-        elif self.sumup <=10:
+        elif float(self.sumup) <=10:
             '''I know this is of medium resolution and high bandwidth or high res with low bandwidth'''
             self.sumup = 10
             return 0.44

@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     '''Handle or get the values here from the request handler and set the same'''
     '''Replace this with input from handler'''
-    filename = "pi333ctuwzf.jpg"
+    filename = "nasa.jpeg"
     size= 720
     band='2g'
     returnfullpath = False
