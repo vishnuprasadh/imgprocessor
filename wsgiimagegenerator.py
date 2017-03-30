@@ -18,7 +18,7 @@ the screensize and the bandwidth.
 Based on these values, the program will do simple logic of sending the most optimal size image and uses
 the optimal PIL-SIMD based Image generation which is faster than most other tools including Imagemagica by approx 10-15times
 '''
-class imagehandler(object):
+class wsgiimagenerator(object):
     '''All configured bandwidth, screens will be initialized with a weightage'''
     bandwidth = dict()
     screens = dict()
@@ -152,38 +152,3 @@ class imagehandler(object):
             return 0.5
 
 
-
-if __name__ == '__main__':
-    '''Handle or get the values here from the request handler and set the same'''
-    '''Replace this with input from handler'''
-
-    formdata = cgi.FieldStorage()
-    filename=""
-    size=""
-    band=""
-    if formdata.length <= 0:
-        filename = "nasa.jpeg"
-        size= '720'
-        band='2g'
-    else:
-        filename=""
-
-    '''the output automatically will be of json with content type and values set
-    the output would have 2 keys.
-    path is imagename & key is unique key for the image & screen, size combination to handle in edge servers like varnish
-    '''
-    print('content-type:image/jpg\n')
-    img  = imagehandler()
-
-    header = StringIO()
-    header.write('key:')
-    header.write(filename)
-    header.write("_")
-    header.write(size)
-    header.write("_")
-    header.write(band)
-    header.write("\n")
-
-    print(header.getvalue() )
-    i = img.generate(filename,size,band)
-    print(i)

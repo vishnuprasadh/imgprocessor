@@ -1,4 +1,4 @@
-__all__=['imgprocessor','imgjsonhandler','cmdimgprocessor','imagehandler']
+__all__=['imgprocessor','imgjsonhandler','cmdimgprocessor','imagehandler','wsgiimagegenerator','wsgiimagehandler']
 
 
 
