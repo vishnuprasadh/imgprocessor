@@ -22,3 +22,5 @@ imgprocessor.pyc
 __pycache__/imgprocessor.cpython-36.pyc
 
 *.log
+
+*.pyc
