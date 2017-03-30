@@ -113,20 +113,20 @@ class imgprocessor(object):
         self.mylogger.info(msg='Size & bandwidth is {} & {}'.format(size,band))
         try:
             size = self.screens[str(size)]
-            print(size)
+            #print(size)
         except Exception:
             size = max({val:key for key, val in self.screens.items()})
             #self.mylogger.info('Size was not found and defaulting to size {}'.format(size))
         '''if input value isnt configured, send the highest bandwidth configured'''
         try:
             band = self.bandwidth[band.lower()]
-            print(band)
+            #print(band)
         except Exception:
             band =  max({val:key for key, val in self.bandwidth.items()})
             #self.mylogger.info('Bandwidth was not found and defaulting to size {}'.format(bandwidth))
         self.sumup = float(size) + float(band)
         self.mylogger.info('Sumup value is {}'.format(self.sumup))
-        print(self.sumup)
+        #print(self.sumup)
         if float(self.sumup) <= 4:
             self.sumup = 4
             return 0.22

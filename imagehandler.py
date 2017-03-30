@@ -4,12 +4,16 @@ import time
 import sys
 import logging.handlers
 import logging
+import base64
+from urllib import request
+from urllib import response
 from PIL import Image
 from configparser import ConfigParser
 from configparser import ExtendedInterpolation
 from pkg_resources import resource_stream, Requirement
 from io import BytesIO
-import base64
+from  io import StringIO
+import cgi
 
 '''the class is used for processing of the image dynamically and accepts the name of the original image
 the screensize and the bandwidth.
@@ -84,8 +88,10 @@ def generate(filename,ssize="320",band="*"):
         if os.path.isfile(savefilename):
             img = Image.open(savefilename)
             img.save(imgfile,format="JPEG")
-            return imgfile.getvalue()
-            #return base64.b64encode(imgfile.getvalue())
+            '''encode it using base64 and return in asciformat'''
+            base64encode=  base64.encodebytes(imgfile.getvalue())
+            return base64encode.decode("ascii")
+
         '''Open the file if it isnt there and resize, send back the path'''
 
         '''Check if input fullpath leads to file, if not throw exception'''
@@ -101,9 +107,10 @@ def generate(filename,ssize="320",band="*"):
         img.save(savefilename,format="JPEG")
 
         '''load from bytes too'''
-        img.save(imgfile)
-        return imgfile.getvalue()
-        #return base64.b64encode(imgfile.getvalue())
+        img.save(imgfile,format="JPEG")
+        '''encode it using base64 and return in asciformat'''
+        base64encode = base64.encodebytes(imgfile.getvalue())
+        return base64encode.decode('ascii')
 
         mylogger.info("Saved file {} for {}".format(filename,savefilename))
     except NameError as filenotfound:
@@ -151,14 +158,35 @@ def _getoptimizesizebasedonsizebandwidth(size,band,screens,bandwidth):
 if __name__ == '__main__':
     '''Handle or get the values here from the request handler and set the same'''
     '''Replace this with input from handler'''
-    filename = "nasa.jpeg"
-    size= 720
-    band='2g'
+
+    formdata = cgi.FieldStorage()
+    filename=""
+    size=""
+    band=""
+    if formdata.length <= 0:
+        filename = "nasa.jpeg"
+        size= '720'
+        band='2g'
+    else:
+        filename=""
 
     '''the output automatically will be of json with content type and values set
     the output would have 2 keys.
     path is imagename & key is unique key for the image & screen, size combination to handle in edge servers like varnish
     '''
-    print('content-type:image/jpg')
+    print('content-type:image/jpg\n')
+
+    header = StringIO()
+    header.write('key:')
+    header.write(filename)
+    header.write("_")
+    header.write(size)
+    header.write("_")
+    header.write(band)
+    header.write("\n")
+
+    print(header.getvalue() )
+
+
     i = generate(filename,size,band)
     print(i)

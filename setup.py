@@ -10,6 +10,6 @@ setup(name="imgprocessor",
     version='0.1',
     download_url='https://github.com/vishnuprasadh/imgprocessor.git',
     url='https://github.com/vishnuprasadh/imgprocessor',
-    install_requires=['Pillow-SIMD','configparser','setuptools'],
+    install_requires=['Pillow-SIMD','configparser','setuptools','mod_wsgi'],
     exclude_package_data={'':['README.MD'],'':['README.TXT'],'':['Config.cfg']}
     )
