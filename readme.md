@@ -1,11 +1,12 @@
 DYNAMIC IMAGE CONVERTOR
 
 PURPOSE
-Given a Image filename with screensize, bandwidth the program generates the image file and provides the output of the filepath with name.
+Given a Image filename with screensize, bandwidth the program generates the image file and provides the output of the filepath with name or the output of resized image as Bytes or renders the entire image as bytes for a given url passed.
 
-Primary intent of this program is to embed this as part of apache log to generate and ouput image files dynamically
+Primary intent of this program is to embed this as part of apache log to generate and ouput image files dynamically. It supports option to configure specific runscripts in httpd-vhosts.conf for virtualhost entry or run as mod_wsgi program or also as commandline or batch scripts.
 
-Provide filename of image as firstparameter, screen w=width e.g. 720 or 1024 etc, bandwidth as third parameter i.e. 2g,3g,4g or * in case of default and full folder image path = True in case you are sending full physicalpath and expecting the fullpath back else false
+Input this takes:
+Provide filename of image as firstparameter, screen width i.e. only width e.g. 720 or 1024 etc and bandwidth as third parameter i.e. 2g,3g,4g or * in case of default and full folder image path = True in case you are sending full physicalpath and expecting the fullpath back else false. You can ignore this for majority of case.
 
 PYTHON FILES
 1. imgprocessor
@@ -31,6 +32,10 @@ pip install configparser
 pip install setuptools
 pip install mod_wsgi
 ```
+Post above, goto httpd.conf in apache and enable for mod_cgi.so and also uncomment loadmodule for httpd-vhosts in case of virtualhost configuration.
+
+TIP: Use this library with media asset randomization for max.benefit.
+
 INSTALL
 Do not run installer in case you want to use this as mod_wsgi python script with apache for imagehandling. Instead copy the files into folder and run the pip commands given in dependency section(sudo access may be required) and then standalone python comamnd as given in section 3
 Section 1: Python2 - Install as libraries and then run it as batch or standalone app
