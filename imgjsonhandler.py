@@ -7,7 +7,11 @@ from imgprocessor import imgprocessor
 
 
 class imgjsonhandler(object):
-
+    '''the class is used for processing of the image dynamically and accepts the name of the original image
+    the screensize and the bandwidth. This makes a call to class:imgprocessor and the returned file name is converted
+    to json format the output format given is application/json which the consuming application can set if doing an inline
+    rendering into browser etc
+    '''
 
     '''This can be used in Django or CGI gateway for making calls and getting JSON while generating the image locally'''
     '''Initialize the logger to log information'''

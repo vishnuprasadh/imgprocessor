@@ -10,9 +10,8 @@ from pkg_resources import resource_stream, Requirement
 
 
 class imgprocessor(object):
-
     '''the class is used for processing of the image dynamically and accepts the name of the original image
-    the screensize and the bandwidth.
+    the screensize and the bandwidth. This provides path to the file of image which can be loaded by consuming app
     Based on these values, the program will do simple logic of sending the most optimal size image and uses
     the optimal PIL-SIMD based Image generation which is faster than most other tools including Imagemagica by approx 10-15times
     '''
@@ -77,6 +76,8 @@ class imgprocessor(object):
             savefilename = filename.split(".")[0] + "_" + str(self.sumup) + "." + filename.split(".")[1]
             savefilename = os.path.join(self.imagepath, savefilename )
 
+            qualityscale = int(round(scale * 100, 0))
+
             '''if filealready exist return file name'''
             if os.path.isfile(savefilename):
                 return savefilename
@@ -90,7 +91,7 @@ class imgprocessor(object):
             '''if fullpath is file, then open the same'''
             img = Image.open(fullpath, 'r')
             self.mylogger.info("Size of image is {}".format(img.size))
-            img.thumbnail((int(img.size[0]*scale) , int(img.size[0]*scale)),Image.LANCZOS)
+            img.thumbnail((int(img.size[0]*scale) , int(img.size[0]*scale)),Image.BILINEAR)
             img.save(savefilename)
             self.mylogger.info("Saved file {} for {}".format(filename,savefilename))
 

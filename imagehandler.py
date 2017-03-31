@@ -11,14 +11,15 @@ from configparser import ExtendedInterpolation
 from pkg_resources import resource_stream, Requirement
 from io import BytesIO
 from  io import StringIO
-import cgi
 
-'''the class is used for processing of the image dynamically and accepts the name of the original image
-the screensize and the bandwidth.
-Based on these values, the program will do simple logic of sending the most optimal size image and uses
-the optimal PIL-SIMD based Image generation which is faster than most other tools including Imagemagica by approx 10-15times
-'''
+
 class imagehandler(object):
+    '''the class is used for processing of the image dynamically and accepts the name of the original image
+    the screensize and the bandwidth. This provides a byte image output
+    Based on these values, the program will do simple logic of sending the most optimal  image as ByteArray.
+    THis may need conversin to Base64 if someone intends to leverage as string
+    the optimal PIL-SIMD based Image generation which is faster than most other tools including Imagemagica by approx 10-15times
+    '''
     '''All configured bandwidth, screens will be initialized with a weightage'''
     bandwidth = dict()
     screens = dict()
@@ -67,11 +68,8 @@ class imagehandler(object):
             defaultscreen = config.get(section="config",option="defaultscreen")
             defaultband = config.get(section="config",option="defaultbandwidth")
             imagepath = config.get(section="config",option="path")
-            #mylogger.setLevel(config.get(section="config",option="loglevel"))
             screens = dict(screenmix.split(",")  for screenmix in screenconfig.split(";"))
             bandwidth = dict(band.split(",") for band in bandconfig.split(";"))
-            #print(screens)
-            #print(bandwidth)
             self.mylogger.info(msg="Done initialization")
 
 
@@ -79,36 +77,39 @@ class imagehandler(object):
             self.mylogger.info('Generating file {}'.format(filename))
             '''Expected name of the file to be generated'''
             scale = self._getoptimizesizebasedonsizebandwidth(ssize, band, screens, bandwidth)
+            #print("Scale is {}".format(scale))
             savefilename = filename.split(".")[0] + "_" + str(self.sumup) + "." + filename.split(".")[1]
             savefilename = os.path.join(imagepath, savefilename )
 
+            qualityscale = int(round(scale * 100,0))
             '''if filealready exist return file name'''
             if os.path.isfile(savefilename):
                 img = Image.open(savefilename)
                 img.save(imgfile,format="JPEG")
                 '''encode it using base64 and return in asciformat'''
-                base64encode=  base64.encodebytes(imgfile.getvalue())
-                return base64encode.decode("ascii")
+                #base64encode=  base64.encodebytes(imgfile.getvalue())
+                #return base64encode.decode("ascii")
+                return imgfile.getvalue()
+            else:
+                '''Open the file if it isnt there and resize, send back the path'''
+                '''Check if input fullpath leads to file, if not throw exception'''
+                fullpath = os.path.join(imagepath, filename)
+                if not os.path.isfile(fullpath):
+                    raise NameError('File not found')
 
-            '''Open the file if it isnt there and resize, send back the path'''
+                '''if fullpath is file, then open the same'''
+                img = Image.open(fullpath, 'r')
+                self.mylogger.info("Size of image is {}".format(img.size))
+                img.thumbnail((int(img.size[0]*scale) , int(img.size[1]*scale)),Image.BILINEAR)
+                '''saved locally'''
+                #img.save(savefilename,format="JPEG")
+                '''load from bytes too'''
+                img.save(imgfile,format="JPEG",quality=qualityscale )
+                '''encode it using base64 and return in asciformat'''
+                #base64encode = base64.encodebytes(imgfile.getvalue())
+                #return base64encode.decode('ascii')
+                return imgfile.getvalue()
 
-            '''Check if input fullpath leads to file, if not throw exception'''
-            fullpath = os.path.join(imagepath, filename)
-            if not os.path.isfile(fullpath):
-                raise NameError('File not found')
-
-            '''if fullpath is file, then open the same'''
-            img = Image.open(fullpath, 'r')
-            self.mylogger.info("Size of image is {}".format(img.size))
-            img.thumbnail((int(img.size[0]*scale) , int(img.size[0]*scale)),Image.LANCZOS)
-            '''saved locally'''
-            img.save(savefilename,format="JPEG")
-
-            '''load from bytes too'''
-            img.save(imgfile,format="JPEG")
-            '''encode it using base64 and return in asciformat'''
-            base64encode = base64.encodebytes(imgfile.getvalue())
-            return base64encode.decode('ascii')
 
             self.mylogger.info("Saved file {} for {}".format(filename,savefilename))
         except NameError as filenotfound:
@@ -133,22 +134,23 @@ class imagehandler(object):
         except Exception:
             band =  max({val:key for key, val in bandwidth.items()})
             #mylogger.info('Bandwidth was not found and defaulting to size {}'.format(bandwidth))
-        sumup = size + band
-        self.mylogger.info('Sumup value is {}'.format(sumup))
-        if float(sumup) <= 4:
-            sumup = 4
+        self.sumup = float(size) + float(band)
+        #print(self.sumup)
+        self.mylogger.info('Sumup value is {}'.format(self.sumup))
+        if float(self.sumup) <= 4:
+            self.sumup = 4
             return 0.22
-        elif float(sumup) <= 7:
+        elif float(self.sumup) <= 7:
             '''I am sure screen is of medium size and bandwidth is around 2g'''
-            sumup = 7
+            self.sumup = 7
             return 0.33
-        elif float(sumup) <=10:
+        elif float(self.sumup) <=10:
             '''I know this is of medium resolution and high bandwidth or high res with low bandwidth'''
-            sumup = 10
+            self.sumup = 10
             return 0.44
         else:
             '''I am sure if the value is > 4, its either 3g, 4g etc with higher screensize'''
-            sumup = 11
+            self.sumup = 11
             return 0.5
 
 
@@ -156,7 +158,7 @@ class imagehandler(object):
 if __name__ == '__main__':
     '''Handle or get the values here from the request handler and set the same'''
     '''Replace this with input from handler'''
-
+    import cgi
     formdata = cgi.FieldStorage()
     filename=""
     size=""
