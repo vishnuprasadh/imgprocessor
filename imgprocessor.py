@@ -19,6 +19,7 @@ class imgprocessor(object):
     '''All configured bandwidth, screens will be initialized with a weightage'''
     bandwidth = dict()
     screens = dict()
+    scales = dict()
 
     '''Default screensize, band will be set once initialized'''
     defaultscreen = {}
@@ -59,12 +60,14 @@ class imgprocessor(object):
         '''Initialize all the configurations like screensizes, bandconfig etc'''
         screenconfig = config.get(section="config",option="screensize")
         bandconfig = config.get(section="config",option="band")
+        scaleconfig = config.get(section="config", option="scale")
         self.defaultscreen = config.get(section="config",option="defaultscreen")
         self.defaultband = config.get(section="config",option="defaultbandwidth")
         self.imagepath = config.get(section="config",option="path")
         #self.mylogger.setLevel(config.get(section="config",option="loglevel"))
         self.screens = dict(screenmix.split(",")  for screenmix in screenconfig.split(";"))
         self.bandwidth = dict(band.split(",") for band in bandconfig.split(";"))
+        self.scales = dict(scale.split(",") for scale in scaleconfig.split(";"))
         self.mylogger.info(msg="Done initialization")
 
     def generate(self,filename,size="1080",bandwidth="*",returnFullpath=False):
@@ -76,8 +79,6 @@ class imgprocessor(object):
             savefilename = filename.split(".")[0] + "_" + str(self.sumup) + "." + filename.split(".")[1]
             savefilename = os.path.join(self.imagepath, savefilename )
 
-            qualityscale = int(round(scale * 100, 0))
-
             '''if filealready exist return file name'''
             if os.path.isfile(savefilename):
                 return savefilename
@@ -85,18 +86,23 @@ class imgprocessor(object):
 
             '''Check if input fullpath leads to file, if not throw exception'''
             fullpath = os.path.join(self.imagepath, filename)
+
             if not os.path.isfile(fullpath):
                 raise NameError('File not found')
+
+            #print(savefilename)
+            #print(fullpath)
 
             '''if fullpath is file, then open the same'''
             img = Image.open(fullpath, 'r')
             self.mylogger.info("Size of image is {}".format(img.size))
-            img.thumbnail((int(img.size[0]*scale) , int(img.size[0]*scale)),Image.BILINEAR)
+            img.thumbnail((int(img.size[0]*float(scale)) , int(img.size[0]*float(scale))),Image.LANCZOS)
             img.save(savefilename)
             self.mylogger.info("Saved file {} for {}".format(filename,savefilename))
 
+
             if returnFullpath:
-                return fullpath
+                return savefilename
             else:
                 return os.path.join(self.imagepath,savefilename)
                 self.mylogger.info(msg="returned for file {}".format(filename))
@@ -130,16 +136,16 @@ class imgprocessor(object):
         #print(self.sumup)
         if float(self.sumup) <= 4:
             self.sumup = 4
-            return 0.22
+            return self.scales.get("4")
         elif float(self.sumup) <= 7:
             '''I am sure screen is of medium size and bandwidth is around 2g'''
             self.sumup = 7
-            return 0.33
-        elif float(self.sumup) <=10:
+            return self.scales.get("7")
+        elif float(self.sumup) <= 10:
             '''I know this is of medium resolution and high bandwidth or high res with low bandwidth'''
             self.sumup = 10
-            return 0.44
+            return self.scales.get("10")
         else:
             '''I am sure if the value is > 4, its either 3g, 4g etc with higher screensize'''
             self.sumup = 11
-            return 0.5
+            return self.scales.get("*")
