@@ -96,7 +96,7 @@ class imgprocessor(object):
             '''if fullpath is file, then open the same'''
             img = Image.open(fullpath, 'r')
             self.mylogger.info("Size of image is {}".format(img.size))
-            img.thumbnail((int(img.size[0]*float(scale)) , int(img.size[0]*float(scale))),Image.LANCZOS)
+            img.thumbnail((int(img.size[0]*float(scale)) , int(img.size[0]*float(scale))),Image.BICUBIC)
             img.save(savefilename)
             self.mylogger.info("Saved file {} for {}".format(filename,savefilename))
 
