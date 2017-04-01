@@ -31,13 +31,18 @@ class imagehandler(object):
     '''The root path for all images'''
     imagepath = {}
     sumup=0
+    '''This will be used to resize and set quality of image'''
+    qualityscore =60
+    qualityconfig = {}
+    qualityvalues =dict()
+    scales = dict()
 
     '''Initialize the logger to log information'''
     mylogger = logging.getLogger('Imagehandler')
     handler = logging.handlers.RotatingFileHandler('imghandler.log','a',maxBytes=10000000,backupCount=5)
     mylogger.addHandler(handler)
 
-    def generate(self,filename,ssize="320",band="*"):
+    def generate(self,filename,ssize="1080",band="*"):
 
         try:
             self.mylogger.info(msg="Starttime is {}".format(time.time()))
@@ -65,13 +70,16 @@ class imagehandler(object):
             '''Initialize all the configurations like screensizes, bandconfig etc'''
             screenconfig = config.get(section="config",option="screensize")
             bandconfig = config.get(section="config",option="band")
+            qualityconfig = config.get(section="config",option="qualityscore")
+            scaleconfig = config.get(section="config",option="scale")
             defaultscreen = config.get(section="config",option="defaultscreen")
             defaultband = config.get(section="config",option="defaultbandwidth")
             imagepath = config.get(section="config",option="path")
             screens = dict(screenmix.split(",")  for screenmix in screenconfig.split(";"))
             bandwidth = dict(band.split(",") for band in bandconfig.split(";"))
+            self.qualityvalues = dict(quality.split(",") for quality in qualityconfig.split(";"))
+            self.scales = dict(scale.split(",") for scale in scaleconfig.split(";"))
             self.mylogger.info(msg="Done initialization")
-
 
             imgfile = BytesIO()
             self.mylogger.info('Generating file {}'.format(filename))
@@ -81,7 +89,6 @@ class imagehandler(object):
             savefilename = filename.split(".")[0] + "_" + str(self.sumup) + "." + filename.split(".")[1]
             savefilename = os.path.join(imagepath, savefilename )
 
-            qualityscale = int(round(scale * 100,0))
             '''if filealready exist return file name'''
             if os.path.isfile(savefilename):
                 img = Image.open(savefilename)
@@ -100,11 +107,11 @@ class imagehandler(object):
                 '''if fullpath is file, then open the same'''
                 img = Image.open(fullpath, 'r')
                 self.mylogger.info("Size of image is {}".format(img.size))
-                img.thumbnail((int(img.size[0]*scale) , int(img.size[1]*scale)),Image.BILINEAR)
+                img.thumbnail((int(img.size[0]* float(scale)) , int(img.size[1]*float(scale))),Image.BILINEAR)
                 '''saved locally'''
                 #img.save(savefilename,format="JPEG")
                 '''load from bytes too'''
-                img.save(imgfile,format="JPEG",quality=qualityscale )
+                img.save(imgfile,format="JPEG",quality= int(self.qualityscore) )
                 '''encode it using base64 and return in asciformat'''
                 #base64encode = base64.encodebytes(imgfile.getvalue())
                 #return base64encode.decode('ascii')
@@ -139,19 +146,23 @@ class imagehandler(object):
         self.mylogger.info('Sumup value is {}'.format(self.sumup))
         if float(self.sumup) <= 4:
             self.sumup = 4
-            return 0.22
+            self.qualityscore = self.qualityvalues.get("4")
+            return self.scales.get("4")
         elif float(self.sumup) <= 7:
             '''I am sure screen is of medium size and bandwidth is around 2g'''
             self.sumup = 7
-            return 0.33
+            self.qualityscore = self.qualityvalues.get("7")
+            return self.scales.get("7")
         elif float(self.sumup) <=10:
             '''I know this is of medium resolution and high bandwidth or high res with low bandwidth'''
             self.sumup = 10
-            return 0.44
+            self.qualityscore = self.qualityvalues.get("10")
+            return self.scales.get("10")
         else:
             '''I am sure if the value is > 4, its either 3g, 4g etc with higher screensize'''
             self.sumup = 11
-            return 0.5
+            self.qualityscore = self.qualityvalues.get("*")
+            return self.scales.get("*")
 
 
 

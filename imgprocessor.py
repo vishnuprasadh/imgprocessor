@@ -67,7 +67,7 @@ class imgprocessor(object):
         self.bandwidth = dict(band.split(",") for band in bandconfig.split(";"))
         self.mylogger.info(msg="Done initialization")
 
-    def generate(self,filename,size="320",bandwidth="*",returnFullpath=False):
+    def generate(self,filename,size="1080",bandwidth="*",returnFullpath=False):
         try:
 
             self.mylogger.info('Generating file {}'.format(filename))
