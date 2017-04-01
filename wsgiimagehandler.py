@@ -22,7 +22,7 @@ def application(environment,start_response):
     '''
 
     returnquerystring = ""
-    response_body = []
+    response_body = "Oops,we are sorry!"
     status = '200 OK'
 
     '''initialize the key variables we would be using for passing imagegenerator'''
