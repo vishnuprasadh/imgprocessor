@@ -29,8 +29,6 @@ def application(environment,start_response):
     filename = ""
     screensize = ""
     bwidth = ""
-    width =0
-    height = 0
 
     try:
         if environment["PATH_INFO"] == "/images/":
@@ -41,53 +39,29 @@ def application(environment,start_response):
             '''resolve imagename in querystring'''
             if any(params):
                 filename = params.get("name")[0]
-                if not(params.get("width") == "NoneType"):
-                    try:
-                        width = int(params.get("width")[0])
-                    except:
-                        width =0
-
-                if not( params.get("height") =="NoneType") :
-                    try:
-                        height = int(params.get("height")[0])
-                    except:
-                        height =0
 
             '''resolve all header info which has screensize & bandwidth'''
             if environment.get("HTTP_NW_TYPE") == 'NoneType':
                 bwidth = "2g"
             else:
-                bwidth = str(environment.get("HTTP_NW_TYPE"))
+                bwidth = environment.get("HTTP_NW_TYPE")
 
             if environment.get("HTTP_SCREENSIZE") == 'NoneType':
                 screensize = "320"
             else:
-                screensize = str(environment.get("HTTP_SCREENSIZE"))
+                screensize = environment.get("HTTP_SCREENSIZE")
 
             img = imagehandler()
-            response_body=img.generate(filename,ssize= screensize,band= bwidth,width= width,height=height)
+            response_body=img.generate(filename,screensize,bwidth)
 
-            '''Set the return key'''
-            if (height > 0 or width > 0):
-                if len(bwidth)==0 or bwidth =="None":
-                    returnquerystring = "{}_{}x{}".format(filename,width,height)
-                else:
-                    returnquerystring = "{}_{}x{}_{}".format(filename,width,height,bwidth)
-            else:
-                if not (screensize =="None") and not(bwidth =="None") :
-                    returnquerystring ="{}_{}_{}".format(filename,screensize,bwidth)
-                elif not(screensize =="None") and bwidth =="None":
-                    returnquerystring = "{}_{}".format(filename, screensize)
-                elif screensize =="None" and not (bwidth =="None"):
-                    returnquerystring = "{}_{}".format(filename, bwidth)
-                else:
-                    returnquerystring = filename
+            #response_body = generate(filename,screensize,bwidth)
 
+            returnquerystring ="{}_{}_{}".format(filename,screensize,bwidth)
 
         '''In the response header, we will also set imagekey for use in varnish and other edgecache servers'''
         response_headers = [
             ('Content-Type', 'image/jpeg'),
-            #("Content-Type","text/html"),
+            # ("Content-Type","text/html"),
             ('Content-Length', str(len(response_body))),
             ('Server', "Encrypt"),
             ('imagekey', str(returnquerystring))]
@@ -96,8 +70,7 @@ def application(environment,start_response):
         status = '400 Bad Request'
         response_body = str(genex)
         response_headers = [
-            #('Content-Type', 'image/jpeg'),
-            ("Content-Type", "text/html"),
+            ('Content-Type', 'image/jpeg'),
             ('Content-Length', str(len(response_body))),
             ('Server', "Encrypt"),
             ('Response_QS',str(returnquerystring))]
