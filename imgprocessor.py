@@ -29,10 +29,14 @@ class imgprocessor(object):
     imagepath = {}
     sumup=0
 
+    '''loginfo level from config'''
+    loginfo = ""
+
     '''Initialize the logger to log information'''
     mylogger = logging.getLogger('Imagehandler')
     handler = logging.handlers.RotatingFileHandler('imghandler.log','a',maxBytes=10000000,backupCount=5)
     mylogger.addHandler(handler)
+    mylogger.setLevel("ERROR")
 
     def __init__(self):
         self.mylogger.info(msg="Starttime is {}".format(time.time()))
@@ -49,6 +53,10 @@ class imgprocessor(object):
         '''get executionpath'''
         dirname = os.path.dirname(os.path.realpath(__file__))
         config.read(os.path.join (dirname ,"config.cfg"))
+
+        loglevel = config.get(section="config", option="loglevel")
+        self.mylogger.setLevel(level=loglevel)
+
         self.mylogger.info(msg="Dirname is {}".format(dirname))
 
         #print(config.keys())

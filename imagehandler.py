@@ -29,10 +29,13 @@ class imagehandler(object):
     bandqualityvalues = dict()
     scales = dict()
 
+
     '''Default screensize, band will be set once initialized'''
     defaultscreen = {}
     defaultband = {}
 
+    '''loginfo level from config'''
+    loginfo =""
     '''The root path for all images'''
     imagepath = {}
     sumup=0
@@ -46,6 +49,7 @@ class imagehandler(object):
     mylogger = logging.getLogger('Imagehandler')
     handler = logging.handlers.RotatingFileHandler('imghandler.log','a',maxBytes=10000000,backupCount=5)
     mylogger.addHandler(handler)
+    mylogger.setLevel("ERROR")
 
     iswidthheightset = False
 
@@ -57,8 +61,10 @@ class imagehandler(object):
     band - is the bandwidth or network type. This can be 2g,3g,4g or *. This will be used purely to optimize quality of image and hence size
     width - the image width
     height - the image height which is required.
+    forcesize - if given 1 or True, the imagesize given is resized without any aspect ratio consideration. Default is false i.e.
+    aspect ratio is considered in resize which can be overriden if this is given as 1 or True
     '''
-    def generate(self,filename,ssize="1080",band="*",width=0,height=0):
+    def generate(self,filename,ssize="1080",band="*",width=0,height=0,forcesize=False):
 
         try:
 
@@ -81,13 +87,15 @@ class imagehandler(object):
             dirname = os.path.dirname(os.path.realpath(__file__))
 
             config.read(os.path.join (dirname ,"config.cfg"))
-            self.mylogger.info(msg="Dirname is {}".format(dirname))
+            '''set logger level from config'''
+            loglevel = config.get(section="config",option="loglevel")
+            self.mylogger.setLevel(level=loglevel)
 
+            self.mylogger.info(msg="Dirname is {}".format(dirname))
             #print(config.keys())
             #print(config.sections())
 
             self.mylogger.info(msg="Dirname is in {}".format(os.path.join (dirname ,"config.cfg")))
-
             '''Initialize all the configurations like screensizes, bandconfig etc'''
             screenconfig = config.get(section="config",option="screensize")
             bandconfig = config.get(section="config",option="band")
@@ -134,12 +142,13 @@ class imagehandler(object):
                 '''Open the file if it isnt there and resize, send back the path'''
                 '''Check if input fullpath leads to file, if not throw exception'''
                 fullpath = os.path.join(imagepath, filename)
+                self.mylogger.info("Image {} is generated from path {}".format(filename, fullpath))
                 #print(fullpath)
                 if not os.path.isfile(fullpath):
                     raise NameError('File not found')
 
                 '''if fullpath is file, then open the same'''
-                img = self._getimage(fullpath,ssize,band,width,height)
+                img = self._getimage(fullpath,ssize,band,width,height,forcesize)
                 '''load from bytes too'''
 
                 '''Sharpen by 1.5, detail out and set subsampling to 0'''
@@ -147,7 +156,7 @@ class imagehandler(object):
                 img = sharp.enhance(1.5)
                 img = img.filter(ImageFilter.DETAIL)
                 img.save(imgfile, format="JPEG" ,subsampling=0, quality=int(self.qualityscore))
-
+                self.mylogger.info("Image {} is generated with force {}".format(filename,forcesize))
                 '''encode it using base64 and return in asciformat'''
                 #base64encode = base64.encodebytes(imgfile.getvalue())
                 #return base64encode.decode('ascii')
@@ -171,21 +180,28 @@ class imagehandler(object):
         #print (filename)
         return filename
 
-    def _getimage(self,fullpath, size,band,width,height):
+    def _getimage(self,fullpath, size,band,width,height,forcesize):
         img = Image.open(fullpath, 'r')
         self.mylogger.info("Size of image is {}".format(img.size))
 
         if self.iswidthheightset:
             self._resolvequality(band)
-            #print(self.qualityscore)
-            #enhance = ImageEnhance.
-            img.thumbnail((int(width), int(height)),Image.LANCZOS)
+            if forcesize == True:
+                img = img.resize((int(width), int(height)), Image.LANCZOS)
+                self.mylogger.info("Using image resize method - WXH = {}_{}".format(img.width,img.height))
+            else:
+                img.thumbnail((int(width), int(height)), Image.LANCZOS)
+                self.mylogger.info("Using image thumbnail method - WXH = {}_{}".format(img.width, img.height))
         else:
             scale = self._resolvequalityandscale()
-            #print(self.qualityscore)
-            img.thumbnail((int(img.size[0] * float(scale)), int(img.size[1] * float(scale))), Image.LANCZOS)
+            if forcesize == True:
+                img = img.resize((int(img.size[0] * float(scale)), int(img.size[1] * float(scale))), Image.LANCZOS)
+                self.mylogger.info("Using image resize method - WXH = {}_{}".format(img.width, img.height))
+            else:
+                img.thumbnail((int(img.size[0] * float(scale)), int(img.size[1] * float(scale))), Image.LANCZOS)
+                self.mylogger.info("Using image resize method - WXH = {}_{}".format(img.width, img.height))
+
         '''saved locally'''
-        # img.save(savefil  ename,format="JPEG")
         return img
 
     '''We will set the optimized value for image generation based on size & bandwidth'''
@@ -265,12 +281,13 @@ if __name__ == '__main__':
     band=""
     width ="0"
     height = "0"
+    forcesize = 0
     if formdata.length <= 0:
         filename = "nasa.jpeg"
         width = "200"
         height = "300"
-        #size= '720'
-        #band='*'
+        size= '720'
+        band='*'
 
     else:
         filename=""
@@ -283,5 +300,5 @@ if __name__ == '__main__':
     img  = imagehandler()
 
     #i = img.generate(filename,size,band)
-    i = img.generate(filename, ssize=size,band= band,width=width ,height=height)
+    i = img.generate(filename, ssize=size,band= band,width=width ,height=height,forcesize=forcesize)
     print(i)

@@ -31,6 +31,8 @@ def application(environment,start_response):
     bwidth = ""
     width =0
     height = 0
+    '''default forcesize is not done and aspect is maintained'''
+    forcesize=False
 
     try:
         if environment["PATH_INFO"] == "/images/":
@@ -53,6 +55,12 @@ def application(environment,start_response):
                     except:
                         height =0
 
+                if not( params.get("fsize") =="NoneType") :
+                    try:
+                        forcesize = bool(params.get("fsize")[0])
+                    except:
+                        forcesize =0
+
             '''resolve all header info which has screensize & bandwidth'''
             if environment.get("HTTP_NW_TYPE") == 'NoneType':
                 bwidth = "2g"
@@ -65,7 +73,7 @@ def application(environment,start_response):
                 screensize = str(environment.get("HTTP_SCREENSIZE"))
 
             img = imagehandler()
-            response_body=img.generate(filename,ssize= screensize,band= bwidth,width= width,height=height)
+            response_body=img.generate(filename,ssize= screensize,band= bwidth,width= width,height=height,forcesize=forcesize)
 
             '''Set the return key'''
             if (height > 0 or width > 0):
