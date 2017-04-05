@@ -61,7 +61,7 @@ class imagehandler(object):
     band - is the bandwidth or network type. This can be 2g,3g,4g or *. This will be used purely to optimize quality of image and hence size
     width - the image width
     height - the image height which is required.
-    forcesize - if given 1 or True, the imagesize given is resized without any aspect ratio consideration. Default is false i.e.
+    forcesize - if given True, the imagesize given is resized without any aspect ratio consideration. Default is False i.e.
     aspect ratio is considered in resize which can be overriden if this is given as 1 or True
     '''
     def generate(self,filename,ssize="1080",band="*",width=0,height=0,forcesize=False):
@@ -91,10 +91,7 @@ class imagehandler(object):
             loglevel = config.get(section="config",option="loglevel")
             self.mylogger.setLevel(level=loglevel)
 
-            self.mylogger.info(msg="Dirname is {}".format(dirname))
-            #print(config.keys())
-            #print(config.sections())
-
+            self.mylogger.info(config.sections())
             self.mylogger.info(msg="Dirname is in {}".format(os.path.join (dirname ,"config.cfg")))
             '''Initialize all the configurations like screensizes, bandconfig etc'''
             screenconfig = config.get(section="config",option="screensize")
@@ -120,15 +117,11 @@ class imagehandler(object):
             imgfile = BytesIO()
             self.mylogger.info('Generating file {}'.format(filename))
             '''Expected name of the file to be generated'''
-            #scale = self._getoptimizesizebasedonsizebandwidth(ssize, band, screens, bandwidth)
-            #savefilename = filename.split(".")[0] + "_" + str(self.sumup) + "." + filename.split(".")[1]
-
             '''A consistent logic is used to generate name of image'''
             savefilename = self._createimageid(filename.split(".")[0],ssize,band,width,height) + filename.split(".")[1]
 
             savefilename = os.path.join(imagepath, savefilename )
 
-            #print(savefilename)
 
             '''if filealready exist return file name'''
             if os.path.isfile(savefilename):
@@ -143,7 +136,7 @@ class imagehandler(object):
                 '''Check if input fullpath leads to file, if not throw exception'''
                 fullpath = os.path.join(imagepath, filename)
                 self.mylogger.info("Image {} is generated from path {}".format(filename, fullpath))
-                #print(fullpath)
+
                 if not os.path.isfile(fullpath):
                     raise NameError('File not found')
 
@@ -161,14 +154,12 @@ class imagehandler(object):
                 #base64encode = base64.encodebytes(imgfile.getvalue())
                 #return base64encode.decode('ascii')
                 return imgfile.getvalue()
-
-
-            self.mylogger.info("Saved file {} for {}".format(filename,savefilename))
         except NameError as filenotfound:
             raise NameError('File {} doesnt exist. Exception - {}'.format(filename,str(filenotfound)))
             self.mylogger.exception("Exception occurred in image generation for {}".format(filename))
         finally:
-            self.mylogger.info("Completed")
+            self.mylogger.info("Completed image for {} in finally".format(filename))
+
 
     '''Creates a consistent naming for file given the options available'''
     def _createimageid(self,filename,ssize,band,width,height):
@@ -185,7 +176,11 @@ class imagehandler(object):
         self.mylogger.info("Size of image is {}".format(img.size))
 
         if self.iswidthheightset:
+
+            '''since we will use width/height given, resolve quality of network to set the scale factor'''
             self._resolvequality(band)
+
+            '''if forcesize is true then use resize to forcefit else use aspectratio preserving thumbnail'''
             if forcesize == True:
                 img = img.resize((int(width), int(height)), Image.LANCZOS)
                 self.mylogger.info("Using image resize method - WXH = {}_{}".format(img.width,img.height))
@@ -193,7 +188,10 @@ class imagehandler(object):
                 img.thumbnail((int(width), int(height)), Image.LANCZOS)
                 self.mylogger.info("Using image thumbnail method - WXH = {}_{}".format(img.width, img.height))
         else:
+            '''since we will use screensize and width/height is not explicit, resolve quality of network to set the scale factor
+            and return the scale based on combination of screen and network configured in config'''
             scale = self._resolvequalityandscale()
+            '''if forcesize is true then use resize to forcefit else use aspectratio preserving thumbnail'''
             if forcesize == True:
                 img = img.resize((int(img.size[0] * float(scale)), int(img.size[1] * float(scale))), Image.LANCZOS)
                 self.mylogger.info("Using image resize method - WXH = {}_{}".format(img.width, img.height))
@@ -220,7 +218,6 @@ class imagehandler(object):
         except Exception:
             band =  max({val:key for key, val in self.bandwidth.items()})
             #mylogger.info('Bandwidth was not found and defaulting to size {}'.format(bandwidth))
-        #print(self.sumup)
         self.sumup = int(size) + int(band)
         self.mylogger.info('Sumup value is {}'.format(self.sumup))
 
@@ -270,7 +267,7 @@ class imagehandler(object):
 
 
 
-
+'''We will execute this more to test when running individual script'''
 if __name__ == '__main__':
     '''Handle or get the values here from the request handler and set the same'''
     '''Replace this with input from handler'''

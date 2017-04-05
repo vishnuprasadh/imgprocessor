@@ -13,12 +13,28 @@ import logging.handlers
 mylogger = logging.getLogger('Imagehandler')
 handler = logging.handlers.RotatingFileHandler('imghandler.log','a',maxBytes=10000000,backupCount=5)
 mylogger.addHandler(handler)
+mylogger.setLevel("INFO")
 
 
 def application(environment,start_response):
     '''
     This application is standalone server which internally calls the class:imghandler that outputs the byte of image without local storage.
     In case you need the path to the file or json, will directly need to integrate with  class: imgprocessor or class:imgjsonhandler
+    Querystring accepted are below. Only filename is mandatory.
+    --name = "Path or name of the image". Note that imagehandler has a path config which will be used with this value to load the file
+    --width = width of image to generate
+    --height = height of image to generate
+    --fsize = forcesize the image i.e. if 1, it will not keep aspect ratio and blindly resizes image, else it would keep aspect ratio and generate image based on WxH given
+
+    Header - Both are optional headers used more for native app optimizations:
+    --screensize - This is the screensize used for dynamic scaledown of image would happen. Use this for mobile apps.
+    Optimization logic written for values of 320, 360,480, 540, 1080, 720, 640, 240.
+    --nw_type : This can be 2g,3g,4g or *. This is network type , * means anything outside 2g,3g,4g used more for desktops
+
+    if both screensize,nw_type with width & height is given, width & height is considered along with nw_type.
+    if width & height with nw_type is given then the same would be considered for image optimization in terms of size.
+    if none are given screensize is assumed to be 1080, nw_type = *
+
     '''
 
     returnquerystring = ""
@@ -32,7 +48,7 @@ def application(environment,start_response):
     width =0
     height = 0
     '''default forcesize is not done and aspect is maintained'''
-    forcesize=False
+    forcesize= False
 
     try:
         if environment["PATH_INFO"] == "/images/":
@@ -40,7 +56,7 @@ def application(environment,start_response):
             '''Parse querystring tp get the values'''
             params = cgi.parse_qs(environment["QUERY_STRING"])
 
-            '''resolve imagename in querystring'''
+            '''resolve Image name, height,width & fsize in querystring'''
             if any(params):
                 filename = params.get("name")[0]
                 if not(params.get("width") == "NoneType"):
@@ -48,7 +64,6 @@ def application(environment,start_response):
                         width = int(params.get("width")[0])
                     except:
                         width =0
-
                 if not( params.get("height") =="NoneType") :
                     try:
                         height = int(params.get("height")[0])
@@ -57,9 +72,15 @@ def application(environment,start_response):
 
                 if not( params.get("fsize") =="NoneType") :
                     try:
-                        forcesize = bool(params.get("fsize")[0])
-                    except:
-                        forcesize =0
+                        forcesize = params.get("fsize")[0]
+                        '''if input value is other than 0 or 1, set forcesize as 0 i.e.false'''
+                        if not (forcesize == "1"):
+                            forcesize= False
+                        else:
+                            forcesize = True
+                    except Exception as ex :
+                        mylogger.error(ex)
+                        forcesize =False
 
             '''resolve all header info which has screensize & bandwidth'''
             if environment.get("HTTP_NW_TYPE") == 'NoneType':
@@ -73,6 +94,7 @@ def application(environment,start_response):
                 screensize = str(environment.get("HTTP_SCREENSIZE"))
 
             img = imagehandler()
+            mylogger.info("Gen image for name:{},ssize:{},bwidth:{},w:{},h:{},force:{}".format(filename,screensize,bwidth,width,height,forcesize))
             response_body=img.generate(filename,ssize= screensize,band= bwidth,width= width,height=height,forcesize=forcesize)
 
             '''Set the return key'''
@@ -103,6 +125,7 @@ def application(environment,start_response):
     except Exception as genex:
         status = '400 Bad Request'
         response_body = str(genex)
+        mylogger.error(genex)
         response_headers = [
             #('Content-Type', 'image/jpeg'),
             ("Content-Type", "text/html"),
@@ -111,6 +134,7 @@ def application(environment,start_response):
             ('Response_QS',str(returnquerystring))]
     finally:
         start_response(status,response_headers)
+        mylogger.info("Just sending out the response now")
         return [response_body]
 
 
