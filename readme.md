@@ -36,19 +36,19 @@ Note that in this case parameters of WXH, fsize which was available in Imagehand
 
 <b>FILES</b>
 
-1. <li>imgprocessor</li>
+1. imgprocessor
 
 The file which actually generates resized thumbnails based on screensize, bandwidth saves it as per the root configuration path in config file and returns the file path.
 
-2. <li>imagehandler</li>
+2. imagehandler
 
 The file which does very similar to imgprocessor excecpt that instead of saving it locally, it returns the Byte of the image which can directly be applied to <img src="data:XXX"/> or just output as images.
 
-3. <li>imgjsonhandler</li>
+3. imgjsonhandler
 
 This internally uses imgprocessor and returns the output as json. You can wrap this with Content-Type:application/json and render it to frontend or directly call from ajax, parse and use it.
 
-4. <li>wsgiimagehandler</li>
+4. wsgiimagehandler
 As the name suggests this is a wsgi program which runs on 8051 port and returns image data i.e. content-type:image/jpeg.Internally this uses imagehandler to get the bytes and render back. This looks for 3 key parameters as input with following constraints:
 a. /image/ pattern in url
 b. filename as querystring to find the name of the jpeg. In case you want to pass full path name then in config file set path: i.e. empty path: set.
