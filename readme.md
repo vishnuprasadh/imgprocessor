@@ -4,8 +4,11 @@
 
 Given a Image filename with screensize, bandwidth the program generates an optimal image output. 
 The image output can be:
+
 a. absolute filepath as json which can be used in ajax calls. 
+
 b. The output of resized image as Bytes
+
 c. The entire image as bytes for a given url passed with content-type as image/jpeg
 
 Primary intent of this program is to embed this and make it imageserver to generate or ouput image files dynamically. It provides capability to resize image when WXH is passed in querystring with option to forcefit the size and return or return the best fit option with no aspect ratio loss.
