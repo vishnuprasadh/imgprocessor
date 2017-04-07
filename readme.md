@@ -1,12 +1,35 @@
 DYNAMIC IMAGE CONVERTOR
 
 PURPOSE
+
 Given a Image filename with screensize, bandwidth the program generates the image file and provides the output of the filepath with name or the output of resized image as Bytes or renders the entire image as bytes for a given url passed.
 
-Primary intent of this program is to embed this as part of apache log to generate and ouput image files dynamically. It supports option to configure specific runscripts in httpd-vhosts.conf for virtualhost entry or run as mod_wsgi program or also as commandline or batch scripts.
+Primary intent of this program is to embed this as part of apache log to generate and ouput image files dynamically. It also provides capability to resize image when WXH is passed in querystring with option to forcefit the size and return or return the best fit option with no aspect ratio loss.
 
-Input this takes:
-Provide filename of image as firstparameter, screen width i.e. only width e.g. 720 or 1024 etc and bandwidth as third parameter i.e. 2g,3g,4g or * in case of default and full folder image path = True in case you are sending full physicalpath and expecting the fullpath back else false. You can ignore this for majority of case.
+
+The program supports option to configure runenvironment in multiple mode:
+1 Standalone mode - Using mod_wsgi-express start-server wsgiimagehandler.py --options command you can run the program in standalone imgae servermode.
+2. Updating the httpd.conf and httpd-vhosts.conf for virtualhost entry or run as independant handler for apache requests.
+3. Mixed mode : Combination of 1 and 2 where you run wsgiimagehandler in mod_wsgi and for all other requests use apache httpd.conf. 
+
+In addition you can very easily create an nginx or varnish front end to cache/edge cache enable the outcomes.
+
+Program can be run as commandline to just get output file or JSON handler to get path of image or Imagehandler to output content as image in bytes.
+
+Primary case used is Imagehandler using wsgiimagehandler.py:
+http://groc-images.com/images/name=vegetables.jpg&width=500&height=200&fsize=1
+QueryString: Provide filename of image as firstparameter, width of screen as second param, height as third. fsize actually force sizes the input WXH when given as 1 which means your aspect ratio is lost. Default is no aspect ratio loss. All these params outside of name of file are optional.
+
+Header values:
+SCREENWIDTH i.e. only width e.g. 720 or 1024 etc and NW_TYPE i.e. bandwidth as third parameter i.e. 2g,3g,4g or * in case of default.
+
+Secondary case of Imagehandler through modules of imgjsonhandler or cmdimgprocessor.
+'--file', required=True, help='The name of image file to generate')
+'--size' ,required=False, default=740 ,help='The size of client device, defaults to 740')
+'-b', '--bandwidth',required=False, default='*' ,help='The bandwidth of device, defaults to high bandwidth.You can give 2g,3g,4g or *')
+'-r', '--returnpath',required=False, default=False, help='If you need full returnpath provide true here' )
+
+Note that in this case parameters of WXH, fsize which was available in Imagehandler is not yet supported.
 
 PYTHON FILES
 1. imgprocessor
