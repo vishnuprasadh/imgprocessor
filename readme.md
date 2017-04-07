@@ -72,9 +72,16 @@ Section 2: Python3- Install as libraries and then run it as batch or standalone 
 python3 setup.py install
 ```
 Section 3: Modcgi Mode
+To just test , you can run:
 ```bash
 python wsgiimagehandler.py
 ```
+To enable it through proper configuration etc in prodcution environment or SIT etc.
+```bash
+mod_wsgi-express start-server wsgiimagehandler.py --threads 20 --processes 1 --log-directory /usr/home/logs/imageserver/
+```
+You can also add WSGIDaemonProcess config which i will detail out later.
+
 RUN TOOLS
 
 Option A: CommandLine
