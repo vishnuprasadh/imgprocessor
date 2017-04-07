@@ -1,6 +1,6 @@
-DYNAMIC IMAGE CONVERTOR
+<b><lu>DYNAMIC IMAGE CONVERTOR</lu></b>
 
-PURPOSE
+<b>PURPOSE</b>
 
 Given a Image filename with screensize, bandwidth the program generates an optimal image output. 
 The image output can be:
