@@ -28,9 +28,13 @@ SCREENWIDTH i.e. only width e.g. 720 or 1024 etc and NW_TYPE i.e. bandwidth as t
 <b>Secondary case</b> of Imagehandler through modules of imgjsonhandler or cmdimgprocessor.
 
 '--file', required=True, help='The name of image file to generate')
+
 '--size' ,required=False, default=740 ,help='The size of client device, defaults to 740')
+
 '-b', '--bandwidth',required=False, default='*' ,help='The bandwidth of device, defaults to high bandwidth.You can give 2g,3g,4g or *')
+
 '-r', '--returnpath',required=False, default=False, help='If you need full returnpath provide true here' )
+
 
 Note that in this case parameters of WXH, fsize which was available in Imagehandler is not yet supported.
 
