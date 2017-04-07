@@ -14,16 +14,19 @@ The program supports option to configure runenvironment in multiple mode:
 
 In addition you can very easily create an nginx or varnish front end to cache/edge cache enable the outcomes.
 
-Program can be run as commandline to just get output file or JSON handler to get path of image or Imagehandler to output content as image in bytes.\n
+Program can be run as commandline to just get output file or JSON handler to get path of image or Imagehandler to output content as image in bytes.
 
-Primary case used is Imagehandler using wsgiimagehandler.py:
-http://groc-images.com/images/name=vegetables.jpg&width=500&height=200&fsize=1
+<b>Primary case</b> used is Imagehandler using wsgiimagehandler.py
+
+Sample URL http://groc-images.com/images/name=vegetables.jpg&width=500&height=200&fsize=1
 QueryString: Provide filename of image as firstparameter, width of screen as second param, height as third. fsize actually force sizes the input WXH when given as 1 which means your aspect ratio is lost. Default is no aspect ratio loss. All these params outside of name of file are optional.
 
 Header values:
+
 SCREENWIDTH i.e. only width e.g. 720 or 1024 etc and NW_TYPE i.e. bandwidth as third parameter i.e. 2g,3g,4g or * in case of default.
 
-Secondary case of Imagehandler through modules of imgjsonhandler or cmdimgprocessor.
+<b>Secondary case</b> of Imagehandler through modules of imgjsonhandler or cmdimgprocessor.
+
 '--file', required=True, help='The name of image file to generate')
 '--size' ,required=False, default=740 ,help='The size of client device, defaults to 740')
 '-b', '--bandwidth',required=False, default='*' ,help='The bandwidth of device, defaults to high bandwidth.You can give 2g,3g,4g or *')
@@ -31,19 +34,32 @@ Secondary case of Imagehandler through modules of imgjsonhandler or cmdimgproces
 
 Note that in this case parameters of WXH, fsize which was available in Imagehandler is not yet supported.
 
-PYTHON FILES
-1. imgprocessor
+<b>FILES</b>
+
+1. <li>imgprocessor</li>
+
 The file which actually generates resized thumbnails based on screensize, bandwidth saves it as per the root configuration path in config file and returns the file path.
-2. imagehandler
+
+2. <li>imagehandler</li>
+
 The file which does very similar to imgprocessor excecpt that instead of saving it locally, it returns the Byte of the image which can directly be applied to <img src="data:XXX"/> or just output as images.
-3. imgjsonhandler
+
+3. <li>imgjsonhandler</li>
+
 This internally uses imgprocessor and returns the output as json. You can wrap this with Content-Type:application/json and render it to frontend or directly call from ajax, parse and use it.
-4. wsgiimagehandler
+
+4. <li>wsgiimagehandler</li>
 As the name suggests this is a wsgi program which runs on 8051 port and returns image data i.e. content-type:image/jpeg.Internally this uses imagehandler to get the bytes and render back. This looks for 3 key parameters as input with following constraints:
 a. /image/ pattern in url
 b. filename as querystring to find the name of the jpeg. In case you want to pass full path name then in config file set path: i.e. empty path: set.
 c. it looks for keys in httpheader in the request which are screensize and nw_type. Screensize can be 320,360,480,540,5;1080,720,640,240 and the network can be 2g,3g,4g or blank.
 If both screensize and network is not passed, the system assumes 320 as screen and 2g as network to give the most optimal output.
+
+Queryparams: Width, height, fsize 
+fsize =1 or 0 => 1 means will forcefit and ignore aspect ratio loss else will give best fit ratio with aspect maintained
+width = actual width we need
+height = actual height we need
+
 
 DEPENDENCY 
 
