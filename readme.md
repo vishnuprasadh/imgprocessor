@@ -14,7 +14,7 @@ The program supports option to configure runenvironment in multiple mode:
 
 In addition you can very easily create an nginx or varnish front end to cache/edge cache enable the outcomes.
 
-Program can be run as commandline to just get output file or JSON handler to get path of image or Imagehandler to output content as image in bytes.
+Program can be run as commandline to just get output file or JSON handler to get path of image or Imagehandler to output content as image in bytes.\n
 
 Primary case used is Imagehandler using wsgiimagehandler.py:
 http://groc-images.com/images/name=vegetables.jpg&width=500&height=200&fsize=1
